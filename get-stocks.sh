@@ -9,7 +9,7 @@ mfsListLink="https://www.moneycontrol.com/mutual-funds/performance-tracker/retur
 
 #fetch list of links to MFs
 
-wget wget  --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0" $mfsListLink -O mfsListLink.html -o logfile
+wget wget  --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0"  --timeout=10 $mfsListLink -O mfsListLink.html -o logfile
 
 echo "Downloaded Mf List page"
 
@@ -45,13 +45,13 @@ do
     isLink=`echo $mfLine |grep http`
     if [ "x${isLink}" != x ]
     then
-        wget --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0"  $mfLine -O stockList -o logfile
+        wget --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0"  --timeout=10  $mfLine -O stockList -o logfile
         grep stockpricequote stockList | grep port_right> stocks.lst
         while read stockListLine
         do
             name=`echo $stockListLine |cut -d'>' -f3| cut -d'<' -f1`
             code=`echo $stockListLine|tr ' ' '\n'|grep 'http'|cut -d'/' -f8|cut -d'"' -f1`
-            wget --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0"  "https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scId=${code}&scIdList=${code}" -O price.txt 
+            wget --header="Accept: text/html" --user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0" --timeout=10  "https://api.moneycontrol.com/mcapi/v1/stock/get-stock-price?scId=${code}&scIdList=${code}" -O price.txt
             price=`cat price.txt|sed -e $'s/\",/\\\n/g'|grep lastPrice|cut -d':' -f2|cut -d'"' -f2`
             price=`echo ${price//,}`
             echo "Price :" $price
